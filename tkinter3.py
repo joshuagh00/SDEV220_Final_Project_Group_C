@@ -3,7 +3,7 @@
 Inputs: parts (items) and user badge #s (via barcode reader emulated, not really implemented), keeping track of aircraft parts received, removed from, returned to storeroom for aircraft repairs. Parts may include new and used (removed from the aircraft)?
 Classes:
 1. Item
-Attributes: Item unique ID (S/N?), Manufacturer, Model, Name, Description, Supplier,  image_file_path, 
+Attributes: Item unique ID (S/N?), Manufacturer, Model, Description, Supplier,  image_file_path, 
     History (list of dates, conditions, and locations)
 Methods: Add_history, Get_history 
 2. History
@@ -32,7 +32,8 @@ from tkinter import messagebox
 from tkinter import * 
 import random
 import datetime
-import PIL
+from PIL import ImageTk, Image  # to display current part image
+
 import json  ## for writing inventory to disk file
 import os.path  ## to check for file existance
 
@@ -40,26 +41,32 @@ random.seed()
 iLengthMax = 15
 filepath = './inventory.json'
 
+#img = []
+#for i in range(1)
+#    img[i] = Image.open('turbine_blade.png')
+
 IDmax = 9999
 
 
 class Item:
-    def __init__(self, ID=random.randrange(IDmax), name="TBD", quantity="1"):
+    def __init__(self, ID=random.randrange(IDmax), description="TBD", quantity="1", imagefile = "nothing.png"):
         self.ID = ID
-        self.name = name
+        self.description = description
         self.quantity = quantity
+        self.imagefile = imagefile  ## the image filedescription
+
     def str(self):   ## create a string with item attributes
-        return 'ID: %s, Name: %s, Quantity: %s' % (self.ID, self.name, self.quantity)
+        return '%s: description: %s, Quantity: %s' % (self.ID, self.description, self.quantity)
 
 class Inventory:
     def __init__(self):
         self.Items = {}
 
-    def add_Item(self, ID, name, qty):
+    def add_Item(self, ID, description, qty, imagefile):
         if ID in self.Items:
             self.Items[ID].quantity += qty
         else:
-            self.Items[ID] = Item(ID, name, qty)
+            self.Items[ID] = Item(ID, description, qty, imagefile)
 
     def move_Item(self, ID, qty):
         if ID in self.Items and self.Items[ID].quantity >= qty:
@@ -70,8 +77,11 @@ class Inventory:
     def search_Item(self, ID):
         if ID in self.Items and self.Items[ID].quantity >= 1:
             messagebox.showerror("Foumd:  %s"  % self.Items[ID].str)
-        else:
-            messagebox.showerror("Not foumd:  Item with ID: %s"  % ID)
+## Fixme: error message displays on app initialization, but why??
+# #        else:
+#            messagebox.showerror("Not foumd:  Item with ID: %s"  % ID)
+
+
 ## Fixme: does not work: dictionary with Item object as entry can't be written as json
     def save(self, filename):  ## write inventory to disk as json
         with open(filename, 'w') as savefile: 
@@ -95,13 +105,13 @@ class GUI(tk.Tk):
         self.Item_ID_label.pack(side = LEFT)
         self.Item_ID_entry = tk.Entry(self)
         self.Item_ID_entry.pack(side = LEFT)
-        self.Item_ID_entry.insert(0, " Item_ID")
+        self.Item_ID_entry.insert(0, "0")
 
-        self.Item_name_label = tk.Label(self, text="Item Name")
-        self.Item_name_label.pack(side = LEFT)
-        self.Item_name_entry = tk.Entry(self)
-        self.Item_name_entry.pack(side = LEFT)
-        self.Item_name_entry.insert(0, " Item_name")
+        self.Item_description_label = tk.Label(self, text=" Description")
+        self.Item_description_label.pack(side = LEFT)
+        self.Item_description_entry = tk.Entry(self)
+        self.Item_description_entry.pack(side = LEFT)
+        self.Item_description_entry.insert(0, " description")
 
         self.Item_quantity_label = tk.Label(self, text="Quantity")
         self.Item_quantity_label.pack(side = LEFT)
@@ -120,9 +130,10 @@ class GUI(tk.Tk):
 
     def add_Item(self):
         ID = self.Item_ID_entry.get()
-        name = self.Item_name_entry.get()
+        description = self.Item_description_entry.get()
         quantity = int(self.Item_quantity_entry.get())
-        self.inventory.add_Item(ID, name, quantity)
+        imagefile = "nothing.png"
+        self.inventory.add_Item(ID, description, quantity, imagefile)
 
     def move_Item(self):
         ID = self.Item_ID_entry.get()
@@ -139,7 +150,7 @@ if __name__ == "__main__":
         inventory.load(filepath)
     else:    # Populate bogus sample inventory
         for i in range(iLengthMax):
-            inventory.add_Item(i, "Part type %s" % i, i+1 )
+            inventory.add_Item(i, "Part type %s" % i, i+1,"turbine_blade.png")
  #      inventory.save(filepath)
 
     app = GUI(inventory)
@@ -156,5 +167,14 @@ if __name__ == "__main__":
  #   while(1):
  #       for i in inventory.Items:
  #           InventList.insert(END, inventory.Items[i].str())
+        # display part image
+    curr_ID = int(app.Item_ID_entry.get()) ## 0  ## Kludge, fixme
+    img = Image.open(inventory.Items[curr_ID].imagefile)
+    tk_img = ImageTk.PhotoImage(img)
+    image_label = tk.Label(app, image=tk_img)
+    image_label.place(x=550,y=30)
     app.mainloop()
+ #  app.update_idletasks()
+ #  app.update()
+        
  #   inventory.save(filepath)  ##fixme: make the save / load functions work
