@@ -1,4 +1,3 @@
-# gui.py
 import tkinter as tk
 from tkinter import simpledialog
 from tracker import AircraftPartsTracker
@@ -11,32 +10,37 @@ class AircraftPartsGUI:
 
         self.tracker = tracker
 
-        # Frame for labels and entry boxes
-        entry_frame = tk.Frame(master)
-        entry_frame.grid(row=0, column=0, columnspan=2)
-
         labels = ["Part Number", "Serial Number", "Description", "Condition", "Quantity"]
         for row, label_text in enumerate(labels):
-            label = tk.Label(entry_frame, text=label_text)
+            label = tk.Label(master, text=label_text)
             label.grid(row=row, column=0, padx=10, pady=5, sticky="e")
 
-            entry = tk.Entry(entry_frame)
+            entry = tk.Entry(master)
             entry.grid(row=row, column=1, padx=10, pady=5, sticky="w")
+
+        # Buttons
+        receive_button = tk.Button(master, text="Receive Part", command=self.receive_part)
+        receive_button.grid(row=len(labels), column=0, columnspan=2, pady=10)
+
+        checkout_button = tk.Button(master, text="Checkout Part", command=self.checkout_part)
+        checkout_button.grid(row=len(labels) + 1, column=0, columnspan=2, pady=10)
 
         # Listbox for displaying inventory
         self.inventory_listbox = tk.Listbox(master, selectmode=tk.SINGLE, height=10)
-        self.inventory_listbox.grid(row=1, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+        self.inventory_listbox.grid(row=len(labels) + 2, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
 
         # Scrollbar for the listbox
         scrollbar = tk.Scrollbar(master, command=self.inventory_listbox.yview)
-        scrollbar.grid(row=1, column=2, sticky="nsew")
+        scrollbar.grid(row=len(labels) + 2, column=2, sticky="nsew")
         self.inventory_listbox.config(yscrollcommand=scrollbar.set)
 
         # Update inventory display initially
         self.tracker.update_inventory_display()
 
         # Center the GUI
-        master.grid_rowconfigure(1, weight=1)  # Adjusted row configuration for the listbox
+        for i in range(len(labels) + 3):
+            master.grid_rowconfigure(i, weight=1)
+
         master.grid_columnconfigure(0, weight=1)
         master.grid_columnconfigure(1, weight=1)
 
@@ -52,6 +56,7 @@ class AircraftPartsGUI:
             if quantity:
                 self.tracker.checkout_part(part_number, quantity)
                 self.tracker.update_inventory_display()
+
 
 if __name__ == "__main__":
     root = tk.Tk()
