@@ -3,12 +3,12 @@ import sqlite3
 import tkinter as tk
 
 class AircraftPartsTracker:
-    def __init__(self, inventory_listbox):
+    def __init__(self, inventory_treeview=None):
         self.conn = sqlite3.connect("aircraft_parts.db")
         self.create_table()
 
         self.current_part_id = 1
-        self.inventory_listbox = inventory_listbox
+        self.inventory_treeview = inventory_treeview
 
     def create_table(self):
         cursor = self.conn.cursor()
@@ -46,9 +46,11 @@ class AircraftPartsTracker:
         cursor.execute('SELECT * FROM parts')
         parts = cursor.fetchall()
 
-        # Clear the existing items in the listbox
-        self.inventory_listbox.delete(0, tk.END)
+        # Clear the existing items in the Treeview
+        for item in self.inventory_treeview.get_children():
+            self.inventory_treeview.delete(item)
 
-        # Insert new items into the listbox
+        # Insert new items into the Treeview
         for part in parts:
-            self.inventory_listbox.insert(tk.END, f"{part[0]} - {part[1]} - {part[2]} - {part[3]} - {part[4]} - {part[5]}")
+            self.inventory_treeview.insert("", "end", values=part)
+        

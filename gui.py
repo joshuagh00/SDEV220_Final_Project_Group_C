@@ -25,15 +25,6 @@ class AircraftPartsGUI:
         checkout_button = tk.Button(master, text="Checkout Part", command=self.checkout_part)
         checkout_button.grid(row=len(labels) + 1, column=0, columnspan=2, pady=10)
 
-        # Listbox for displaying inventory
-        self.inventory_listbox = tk.Listbox(master, selectmode=tk.SINGLE, height=10)
-        self.inventory_listbox.grid(row=len(labels) + 2, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
-
-        # Scrollbar for the listbox
-        scrollbar = tk.Scrollbar(master, command=self.inventory_listbox.yview)
-        scrollbar.grid(row=len(labels) + 2, column=2, sticky="nsew")
-        self.inventory_listbox.config(yscrollcommand=scrollbar.set)
-
         # Update inventory display initially
         self.tracker.update_inventory_display()
 
