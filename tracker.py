@@ -1,14 +1,22 @@
 # tracker.py
+# 12/7/23 D. Kolb
+# 12/7/23 updated M. Atkins to add catalog database based on descriptions in settings.py.  Still need to use the database in the gui.
+
 import sqlite3
 import tkinter as tk
+import os
+from settings import descriptions
 
 class AircraftPartsTracker:
-    def __init__(self, inventory_listbox):
+    def __init__(self, Ilist=None):
         self.conn = sqlite3.connect("aircraft_parts.db")
+        
         self.create_table()
+        if ~os.path.isfile("catalog.db"): ## no catalog yet
+            self.create_ccat()
 
         self.current_part_id = 1
-        self.inventory_listbox = inventory_listbox
+        self.Ilist = Ilist
 
     def create_table(self):
         cursor = self.conn.cursor()
@@ -23,6 +31,25 @@ class AircraftPartsTracker:
             )
         ''')
         self.conn.commit()
+
+    def create_ccat(self):  ## make catalog of parts and images
+        if ~os.path.isfile("catalog.db"): ## no catalog yet
+            self.ccat = sqlite3.connect("catalog.db")
+            cursor = self.ccat.cursor()
+            cursor.execute('''
+                CREATE TABLE IF NOT EXISTS catalog (
+                 part_number INTEGER PRIMARY KEY, 
+                 description TEXT,
+                 imagefile TEXT
+                )
+            ''')
+            for i in range(len(descriptions)):
+                cursor.execute('''
+                    INSERT INTO catalog (part_number, description, imagefile)
+                    VALUES (?, ?, ?)
+                ''', [i, descriptions[i][0], descriptions[i][1]])
+            self.ccat.commit()   
+        
 
     def receive_part(self, part_info):
         cursor = self.conn.cursor()
@@ -46,9 +73,11 @@ class AircraftPartsTracker:
         cursor.execute('SELECT * FROM parts')
         parts = cursor.fetchall()
 
-        # Clear the existing items in the listbox
-        self.inventory_listbox.delete(0, tk.END)
+        # Clear the existing items in the Treeview
+        for item in self.Ilist.get_children():
+            self.Ilist.delete(item)
 
-        # Insert new items into the listbox
+        # Insert new items into the Treeview
         for part in parts:
-            self.inventory_listbox.insert(tk.END, f"{part[0]} - {part[1]} - {part[2]} - {part[3]} - {part[4]} - {part[5]}")
+            self.Ilist.insert("", "end", values=part)
+        
