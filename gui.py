@@ -40,20 +40,28 @@ class AircraftPartsGUI:
 
         master.grid_columnconfigure(0, weight=1)
         master.grid_columnconfigure(1, weight=1)
-
-        self.part_info = [entry.get() for entry in self.master.winfo_children() if isinstance(entry, tk.Entry)]
+        
+        self.part_info =[]
+        for x in self.entry:
+            self.part_info.append(x.get())
 
 
     def receive_part(self):
+        self.part_info =[]
+        for x in self.entry:
+            self.part_info.append(x.get())
         self.tracker.receive_part(self.part_info)
         self.tracker.update_inventory_display()
 
     def checkout_part(self):
+        self.part_info =[]
+        for x in self.entry:
+            self.part_info.append(x.get())
         #part_number = simpledialog.askstring("Checkout Part", "Enter Part Number:")
         #if part_number:
         #    quantity = simpledialog.askinteger("Checkout Part", "Enter Quantity:")
         #    if quantity:
-        self.tracker.checkout_part(self.part_info[0], self.part_info[4])
+        self.tracker.checkout_part(self.part_info[0], self.part_info[5])
         self.tracker.update_inventory_display()
 
 if __name__ == "__main__":
