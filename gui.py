@@ -1,9 +1,9 @@
-gui.py  
+# gui.py  
 # 12/7/23 D. Kolb
-# 12/2/23 updated M. Atkins
+# 12/7/23 updated M. Atkins
 
 import tkinter as tk
-from tkinter import simpledialog
+# from tkinter import simpledialog
 from tracker import AircraftPartsTracker
 
 class AircraftPartsGUI:
@@ -55,7 +55,6 @@ class AircraftPartsGUI:
         #    if quantity:
         self.tracker.checkout_part(self.part_info[0], self.part_info[4])
         self.tracker.update_inventory_display()
-
 
 if __name__ == "__main__":
     root = tk.Tk()
