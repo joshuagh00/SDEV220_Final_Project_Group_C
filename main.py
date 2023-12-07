@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     root.iconbitmap(icon_path)
 
-    # Create a ttk.Treeview for the inveentory Listbox
+    # Create a ttk.Treeview for the inventory Listbox
     columns = ("Part Unique ID", "Part model #", "Serial #", "Description", "Condition", "Qty")
     Ilist = ttk.Treeview(root, columns=columns, show="headings")
 
