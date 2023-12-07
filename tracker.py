@@ -12,7 +12,7 @@ class AircraftPartsTracker:
         self.conn = sqlite3.connect("aircraft_parts.db")
         
         self.create_table()
-        if ~os.path.isfile("catalog.db"): ## no catalog yet
+        if not os.path.isfile("catalog.db"): ## no catalog yet
             self.create_ccat()
 
         self.current_part_id = 1
@@ -33,7 +33,6 @@ class AircraftPartsTracker:
         self.conn.commit()
 
     def create_ccat(self):  ## make catalog of parts and images
-        if ~os.path.isfile("catalog.db"): ## no catalog yet
             self.ccat = sqlite3.connect("catalog.db")
             cursor = self.ccat.cursor()
             cursor.execute('''
