@@ -8,15 +8,18 @@ import os
 from settings import descriptions
 
 class AircraftPartsTracker:
-    def __init__(self, Ilist=None):
-        self.conn = sqlite3.connect("aircraft_parts.db")
+    def __init__(self, Ilist=None, Clist=None):
+        self.conn = sqlite3.connect("parts.db")
         
         self.create_table()
         if not os.path.isfile("catalog.db"): ## no catalog yet
             self.create_ccat()
-
+        else:
+            self.ccat = sqlite3.connect("catalog.db")
+        
         self.current_part_id = 1
-        self.Ilist = Ilist
+        self.Ilist = Ilist  # inventory list
+        self.Clist = Ilist  # catalog list
 
     def create_table(self):
         cursor = self.conn.cursor()
@@ -55,7 +58,7 @@ class AircraftPartsTracker:
         cursor.execute('''
             INSERT INTO parts (part_number, serial_number, description, condition, quantity)
             VALUES (?, ?, ?, ?, ?)
-        ''', part_info)
+        ''', part_info[0:5])
         self.conn.commit()
 
     def checkout_part(self, part_number, quantity):
@@ -79,4 +82,17 @@ class AircraftPartsTracker:
         # Insert new items into the Treeview
         for part in parts:
             self.Ilist.insert("", "end", values=part)
+
+    def update_ccat_display(self):
+        cursor = self.ccat.cursor()
+        cursor.execute('SELECT * FROM catalog')
+        cat_list = cursor.fetchall()
+
+        # Clear the existing items in the Treeview
+        for item in self.Clist.get_children():
+            self.Clist.delete(item)
+
+        # Insert new items into the Treeview
+        for part in cat_list:
+            self.Clist.insert("", "end", values=part)      
         
