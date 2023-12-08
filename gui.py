@@ -9,6 +9,7 @@ import tkinter as tk
 from PIL import ImageTk, Image  # to display current part image
 
 from tracker import Tracker
+from settings import descriptions
 
 class GUI:
     def __init__(self, master, tracker):
@@ -45,10 +46,19 @@ class GUI:
         master.grid_columnconfigure(0, weight=1)
         master.grid_columnconfigure(1, weight=1)
         
-        self.part_info =[]  ## part info is a list
+        self.part_info =[]  ## part info is a list.  FIXME: Should be a class Item() instance instead
         for x in self.entry:
             self.part_info.append(x.get())
+    
+        #self.cata = Catalog(descriptions)
 
+    def image(self):  ## place image corresponding to this part model #
+            self.model = self.entry[0].get() 
+            self.img = Image.open(descriptions[self.model][1])
+            self.tk_img = ImageTk.PhotoImage(self.img)
+            self.image_label = tk.Label(self.master, image=self.tk_img)
+            self.image_label.place(x=750,y=30)
+ 
 
     def receive_part(self):
         self.part_info =[]
@@ -56,6 +66,7 @@ class GUI:
             self.part_info.append(x.get())
         self.tracker.receive_part(self.part_info)
         self.tracker.update_inventory_display()
+        self.image()
 
     def checkout_part(self):
         self.part_info =[]

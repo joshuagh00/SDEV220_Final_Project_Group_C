@@ -32,6 +32,7 @@ import tkinter as tk
 from tkinter import ttk  # Import the ttk module (treeview)
 from gui import GUI
 from tracker import Tracker
+from settings import descriptions
 
 if __name__ == "__main__":
     root = tk.Tk()
@@ -77,6 +78,11 @@ if __name__ == "__main__":
         for i in range(len(selected['values'])):  # skip field 0, which is part ID. Don't mess with last field, qty either
             gui.entry[i].delete(0, last = 30)
             gui.entry[i].insert(0, selected['values'][i])
+        gui.image()  # update item image to match the model #
+        gui.entry[1].delete(0, last = 30)
+        descrip = descriptions[gui.entry[0].get()][0]
+        gui.entry[1].insert(0, descrip)  # update to catalog description
+        
 
     Ilist.bind('<<TreeviewSelect>>', on_select)
 

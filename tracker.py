@@ -5,8 +5,9 @@
 
 import sqlite3
 import tkinter as tk
+from tkinter import messagebox
 import os
-from settings import descriptions
+# from settings import descriptions
 PNmax = 9999
 SNmax = 9999
 
@@ -17,12 +18,15 @@ class Item:
         self.condition = condition
         self.imagefile = imagefile  ## the image filedescription
         # self.hist = History()  Would be nice, but not implemented
-        self.SN = SN  #serial # , might be alphanumeric    
+        self.SN = SN  #serial # might be alphanumeric.  Unused right now  
 
     def str(self):   ## create a string with item attributes
         return 'model #: %s    description: %s, image: %s,  S/N: %s' % (self.model, self.description, self.imagefile, self.SN)
     
-
+#class Catalog:  # superfluous
+#    def __init__(self, descriptions = {}):
+#        self.data = descriptions   
+  
 
 class Tracker:
     def __init__(self, Ilist=None): # unneeded:   , Clist=None):
@@ -30,7 +34,7 @@ class Tracker:
         
         self.create_table()
         """
-        if not os.path.isfile("catalog.db"): ## no catalog yet
+        if not os.path.isfile("catalog.db"): ## no sql catalog db yet
             self.create_ccat()
         else:
             self.ccat = sqlite3.connect("catalog.db")
@@ -58,8 +62,8 @@ class Tracker:
         cursor.execute('''
             INSERT INTO parts (model, description, condition, qty)
             VALUES (?, ?, ?, ?)
-               ON CONFLICT(model) DO UPDATE SET qty = qty + ? ''', \
-                (part_info[0], part_info[1], part_info[2], part_info[3], part_info[3]))
+               ON CONFLICT(model) DO UPDATE SET description = ?, qty = qty + ? ''', \
+                (part_info[0], part_info[1], part_info[2], part_info[3], part_info[1],part_info[3]))
         self.conn.commit()
 
     def checkout_part(self, mod, quantity):
@@ -72,7 +76,7 @@ class Tracker:
                 WHERE model = ?  ''', (quant, mod))
             self.conn.commit()
         else:
-            tk.messagebox.showwarning(title="Checkout part", message="Insufficient quantity (str((existing_qty))")
+            messagebox.showwarning("Checkout part", "Insufficient quantity (%s)"% existing_qty)
 
     def update_inventory_display(self):
         cursor = self.conn.cursor()
