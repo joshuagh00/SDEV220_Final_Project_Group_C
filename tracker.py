@@ -7,7 +7,8 @@ import sqlite3
 import tkinter as tk
 from tkinter import messagebox
 import os
-# from settings import descriptions
+# from gui import fill_entries
+# from main import gui1
 PNmax = 9999
 SNmax = 9999
 
@@ -29,7 +30,7 @@ class Item:
   
 
 class Tracker:
-    def __init__(self, Ilist=None): # unneeded:   , Clist=None):
+    def __init__(self, Ilist=None):  ## Ilist defined in main.py
         self.conn = sqlite3.connect("parts.db")
         
         self.create_table()
@@ -42,7 +43,7 @@ class Tracker:
         """
         
         self.current_model = 1
-        self.Ilist = Ilist  # inventory list
+        self.Ilist = Ilist  # inventory list, Ilist defined in main.py
         
 
     def create_table(self):
@@ -57,6 +58,13 @@ class Tracker:
         ''')
         self.conn.commit()
 
+    """
+    def search(self, part_info):
+        cursor = self.conn.cursor()
+        cursor.execute('SELECT * FROM parts WHERE model = ?', part_info[0])
+        part_info = cursor.fetchall()
+        fill_entries(part_info)
+    """        
     def receive_part(self, part_info):
         cursor = self.conn.cursor()
         cursor.execute('''
@@ -65,6 +73,7 @@ class Tracker:
                ON CONFLICT(model) DO UPDATE SET description = ?, qty = qty + ? ''', \
                 (part_info[0], part_info[1], part_info[2], part_info[3], part_info[1],part_info[3]))
         self.conn.commit()
+
 
     def checkout_part(self, mod, quantity):
         quant = int(quantity)
@@ -76,7 +85,7 @@ class Tracker:
                 WHERE model = ?  ''', (quant, mod))
             self.conn.commit()
         else:
-            messagebox.showwarning("Checkout part", "Insufficient quantity (%s)"% existing_qty)
+            messagebox.showwarning("Checkout part", "Insufficient inventory (%s in stock)"% existing_qty)
 
     def update_inventory_display(self):
         cursor = self.conn.cursor()
@@ -91,7 +100,7 @@ class Tracker:
         for part in parts:
             self.Ilist.insert("", "end", values=part)
     """
-
+## code below is for sql based catalog, not deemed necessary.  Just using settings.py to hold catalog of parts
     def create_ccat(self):  ## make catalog of parts and images
             self.ccat = sqlite3.connect("catalog.db")
             cursor = self.ccat.cursor()
