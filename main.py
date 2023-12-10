@@ -3,6 +3,8 @@
 # 12/7/23 updated M. Atkins
 # 12/8/23 updated M. Atkins
 # 12/9/23 updated M. Atkins
+# 12/10/23 updated M. Atkins
+
 
 """
 Inputs: parts (items) (via barcode reader emulated, not really implemented), keeping track of parts received, 
@@ -17,15 +19,15 @@ Attributes: Model #, Description, condition (new, used, good, bad) image_file_pa
 
 3. Inventory (Tracker)
 Attributes: list of Items, kept in SQL database tabke
-Methods: Add_item, Remove_item, other TBD
+Methods: Add_item, Remove_item,
 4. GUI (using Tkinter package)	
 Dialog box
  “Add item” button, with entry fields for new item’s attributes, 
  “Remove item” button, with entry fields for item’s attributes, 
  “Search” button, with entry fields for item’s attributes
 A list displaying entire inventory, scrollable
-A list displaying search results
-Image of the item, if a single item is selected in the item list or search results list
+A list displaying catalog
+Image of the item listed in the entry box(es) and/or selected in catalog or inventory
 """
 
 import os

@@ -8,8 +8,10 @@ import tkinter as tk
 # from tkinter import simpledialog
 from PIL import ImageTk, Image  # to display current part image
 
-from tracker import Tracker
+from tracker import Tracker, Item
 from settings import *
+
+
 
 class GUI:
     def __init__(self, master, tracker, Ilist):
@@ -54,12 +56,13 @@ class GUI:
         #    master.grid_rowconfigure(i, weight=1)
         master.grid_columnconfigure(0, weight=0)
         master.grid_columnconfigure(1, weight=0)
-        
-        self.part_info =[]  ## part info is a list.  FIXME: Should be a class Item() instance instead
-        for x in self.entry:
-            self.part_info.append(x.get())
-    
-        #self.cata = Catalog(descriptions)
+            
+        self.get_it()
+
+    def get_it(self):
+        self.it = Item(self.entry[0].get(),self.entry[1].get(),self.entry[2].get(), None, None) 
+        self.it_info = [self.it.mod, self.it.desc, self.it.cond,(self.entry[3].get())] # convert object to list
+        self.quantity = self.it_info[3]
 
     def image(self):  ## place image corresponding to this part model #
             self.model = self.entry[0].get() 
@@ -79,10 +82,6 @@ class GUI:
 
 ## Button methods:
     def search(self):
-        # self.part_info =[]
-        # for x in self.entry :   # get current entry box part info
-        #   self.part_info.append(x.get())
-
         query = self.entry[0].get()  ## just searching model #
         selections = []
         for child in self.Ilist.get_children():
@@ -92,27 +91,23 @@ class GUI:
         # print('search completed')
         self.Ilist.selection_set(selections)
         self.image()
-        # fill_entries(part_info)
+        # fill_entries(it_info)
    
 
     def receive_part(self):
-        self.part_info = []
-        for x in self.entry:
-            self.part_info.append(x.get())
+        self.get_it()
         self.image()  # show picture for whatever is in Model # entry
-        if (not self.part_info[3].isnumeric()):  ## no quantity or nonumber 
+        if (not self.it_info[3].isnumeric()):  ## no quantity or nonumber 
             tk.messagebox.showwarning("Receive item", "Invalid or missing quantity to receive")
         else:    
-            self.tracker.receive_part(self.part_info)
+            self.tracker.receive_part(self.it, self.quantity)
             self.tracker.update_inventory_display()    
 
     def checkout_part(self):
-        self.part_info =[]
-        for x in self.entry:
-            self.part_info.append(x.get())
+        self.get_it()
         self.image()  # show picture for whatever is in Model # entry
-        if (not self.part_info[3].isnumeric()):  ## no quantity or nonumber 
+        if (not self.it_info[3].isnumeric()):  ## no quantity or nonumber 
             tk.messagebox.showwarning("Checkout item", "Invalid or missing quantity")
         else:    
-            self.tracker.checkout_part(self.part_info[0], self.part_info[3])
+            self.tracker.checkout_part(self.it.mod, self.it_info[3])
             self.tracker.update_inventory_display()
