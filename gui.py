@@ -3,24 +3,28 @@
 # 12/7/23 updated M. Atkins
 # 12/8/23 updated M. Atkins
 # 12/9/23 updated M. Atkins
-
+# 12/10/23 updated M. Atkins
 import tkinter as tk
-# from tkinter import simpledialog
+
 from PIL import ImageTk, Image  # to display current part image
+from datetime import datetime  # for  TOD display label and History list (not yet implemented)
 
 from tracker import Tracker, Item
 from settings import *
 
-
-
 class GUI:
-    def __init__(self, master, tracker, Ilist):
+    def __init__(self, master, tracker, Ilist, Clist):
         self.master = master
         self.master.title("Aircraft Parts Tracker")
-        self.master.geometry("1000x1000")
+        self.master.geometry("1000x600")
         self.Ilist = Ilist
-
+        self.Clist = Clist
         self.tracker = tracker
+
+        now = datetime.now()
+        date_time = now.strftime(" %H:%M:%S  %m/%d/%Y") # Format the date and time
+        self.label_time = tk.Label(master, text=date_time)
+        self.label_time.grid(row=0, column=2, padx=1, pady=5, sticky="w")
 
         labels = ["Model #", "Description", "Condition", "Quantity"]  # "Serial #",
         self.entry = [] # length 0 list of entry boxes
@@ -34,35 +38,25 @@ class GUI:
 
         # Buttons
         button_Search = tk.Button(master, text="Search", command=self.search)
-        button_Search.grid(row=0, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
+        button_Search.grid(row=1, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
 
         button_Add = tk.Button(master, text="Receive item", command=self.receive_part)
-        button_Add.grid(row=1, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
+        button_Add.grid(row=2, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
 
         checkout_button = tk.Button(master, text="Checkout item", command=self.checkout_part)
-        checkout_button.grid(row=2, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
-
-        label_Ilist = tk.Label(master, text="Inventory", font=("Arial", 16))
-        label_Ilist.grid(row=7, column=0, padx=10, pady=1, sticky="w")
-
-        label_Clist = tk.Label(master, text="Catalog", font=("Arial", 16))
-        label_Clist.grid(row=9, column=0, padx=10, pady=5, sticky="w")
+        checkout_button.grid(row=3, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
 
         # Update inventory display initially
         self.tracker.update_inventory_display()
 
-        # Center the GUI
-        #for i in range(len(labels)):
-        #    master.grid_rowconfigure(i, weight=1)
         master.grid_columnconfigure(0, weight=0)
         master.grid_columnconfigure(1, weight=0)
             
         self.get_it()
 
-    def get_it(self):
+    def get_it(self):  ## get item data from entry boxes
         self.it = Item(self.entry[0].get(),self.entry[1].get(),self.entry[2].get(), None, None) 
-        self.it_info = [self.it.mod, self.it.desc, self.it.cond,(self.entry[3].get())] # convert object to list
-        self.quantity = self.it_info[3]
+        self.quantity = self.entry[3].get()
 
     def image(self):  ## place image corresponding to this part model #
             self.model = self.entry[0].get() 
@@ -78,26 +72,41 @@ class GUI:
     def fill_entries(self, values):
         for i in range(len(values)):  
             self.entry[i].delete(0, last = 30)
-            self.entry[i].insert(0, values[i])    
+            self.entry[i].insert(0, values[i])  
+
+    def time_update(self):
+        now = datetime.now()
+        date_time = now.strftime(" %H:%M:%S     %m/%d/%Y") # Format the date and time
+        self.label_time.config(text=date_time)
+        self.master.after(100, self.time_update)   # Schedule to run evry 100ms 
 
 ## Button methods:
     def search(self):
+        for i in self.Ilist.selection(): self.Ilist.selection_remove(i)  # clear any selections
+        for i in self.Clist.selection(): self.Clist.selection_remove(i)
+       
         query = self.entry[0].get()  ## just searching model #
-        selections = []
-        for child in self.Ilist.get_children():
-            if query in self.Ilist.item(child)['values']:   # compare strings
-         #       print(self.Ilist.item(child)['values'])  # for debug
-                selections.append(child)
-        # print('search completed')
-        self.Ilist.selection_set(selections)
-        self.image()
-        # fill_entries(it_info)
+        if query != '':
+            selections = []
+            for child in self.Ilist.get_children():  ## look first in the inventory
+                if query in self.Ilist.item(child)['values']:   # compare strings
+                   # print(self.Ilist.item(child)['values'])  # for debug
+                    selections.append(child)
+                    self.Ilist.selection_set(selections)
+                    self.image()
+                    return
+                else: 
+                    for child in self.Clist.get_children():
+                        if query in self.Clist.item(child)['values']:  
+                            selections.append(child)
+                            self.Clist.selection_set(selections)
+                            self.image()
+                            return
    
-
     def receive_part(self):
         self.get_it()
         self.image()  # show picture for whatever is in Model # entry
-        if (not self.it_info[3].isnumeric()):  ## no quantity or nonumber 
+        if (not self.quantity.isnumeric()):  ## no quantity or nonumber 
             tk.messagebox.showwarning("Receive item", "Invalid or missing quantity to receive")
         else:    
             self.tracker.receive_part(self.it, self.quantity)
@@ -106,8 +115,8 @@ class GUI:
     def checkout_part(self):
         self.get_it()
         self.image()  # show picture for whatever is in Model # entry
-        if (not self.it_info[3].isnumeric()):  ## no quantity or nonumber 
+        if (not self.quantity.isnumeric()):  ## no quantity or nonumber 
             tk.messagebox.showwarning("Checkout item", "Invalid or missing quantity")
         else:    
-            self.tracker.checkout_part(self.it.mod, self.it_info[3])
+            self.tracker.checkout_part(self.it.mod, self.quantity)
             self.tracker.update_inventory_display()

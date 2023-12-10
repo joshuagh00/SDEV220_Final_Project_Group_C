@@ -2,13 +2,13 @@
 # 12/7/23 D. Kolb
 # 12/7/23 updated M. Atkins to add catalog database based on descriptions in settings.py.  Still need to use the database in the gui.
 # 12/8/23 updated M. Atkins to add Item class, and to remove unneeded catalog database based on descriptions in settings.py.  Still need to use the catalog in the gui.
-# 12/10/23 updated M. Atkins to use Item class 
+# 12/10/23 updated M. Atkins to use Item class , etc...
+
 import sqlite3
 import tkinter as tk
 from tkinter import messagebox
 import os
-# from gui import fill_entries
-# from main import gui1
+
 PNmax = 9999
 SNmax = 9999
 
@@ -30,7 +30,7 @@ class Item:
   
 
 class Tracker:
-    def __init__(self, Ilist=None):  ## Ilist defined in main.py
+    def __init__(self, Ilist=None, Clist=None):  ## Ilist defined in main.py
         self.conn = sqlite3.connect("parts.db")
         
         self.create_table()
@@ -44,6 +44,7 @@ class Tracker:
         
         self.current_model = 1
         self.Ilist = Ilist  # inventory list, Ilist defined in main.py
+        self.Clist = Clist  # inventory list, Ilist defined in main.py
         
 
     def create_table(self):
@@ -70,8 +71,8 @@ class Tracker:
         cursor.execute('''
             INSERT INTO parts (model, description, condition, qty)
             VALUES (?, ?, ?, ?)
-               ON CONFLICT(model) DO UPDATE SET description = ?, qty = qty + ? ''', \
-                (it.mod, it.desc, it.cond, quantity, it.desc,quantity))
+               ON CONFLICT(model) DO UPDATE SET description = ?, condition = ?, qty = qty + ? ''', \
+                (it.mod, it.desc, it.cond, quantity, it.desc, it.cond, quantity))
         self.conn.commit()
 
 

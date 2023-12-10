@@ -26,7 +26,7 @@ Dialog box
  “Remove item” button, with entry fields for item’s attributes, 
  “Search” button, with entry fields for item’s attributes
 A list displaying entire inventory, scrollable
-A list displaying catalog
+A list displaying catalog (descriptions), which is a dictionary defined in the settings.py file
 Image of the item listed in the entry box(es) and/or selected in catalog or inventory
 """
 
@@ -56,10 +56,37 @@ if __name__ == "__main__":
           tree.move(item, '', index)
         tree.heading(col, command=lambda: sort_treeview(tree, col, not descending))
 
-##########################################################################
-    # Create a ttk.Treeview for the inventory Listbox
+  #########################################################################
+    # Create Catalog Listbox, a ttk.Treeview 
+    label_Clist = tk.Label(text="Catalog", font=("Arial", 16))
+    label_Clist.grid(row=7, column=0, padx=10, pady=20, sticky="ws")
+ 
+    columns = ("Model #", "Description")
+    Clist = ttk.Treeview(root, columns=columns, show="headings", height=15)
+    # Set column headings
+    for col in columns:
+        Clist.heading(col, text=col, anchor="w", command=lambda c=col: sort_treeview(Clist, c, False))  # west-align header text
+    Clist.column(0, width=90)
+    Clist.column(1, width=200)  # description columun wide
+ 
+    # Add the Treeview to the grid
+    Clist.grid(row=8, column=0, columnspan=2, rowspan=3, padx=10, pady=10, sticky="nw")
+
+    # Add a vertical scrollbar
+    scrollbarC = tk.Scrollbar(root, command=Clist.yview)
+    scrollbarC.grid(row=8, column=2, sticky="nsw")
+    Clist.config(yscrollcommand=scrollbarC.set)
+
+    for key in descriptions:  ## convert dict entries to tuple to insert in treeview
+        Clist.insert('', 'end', values=(key, descriptions[key][0]))
+    
+    ##########################################################################
+    # Create inventory Listbox, a ttk.Treeview 
+    label_Ilist = tk.Label(text="Inventory", font=("Arial", 16))
+    label_Ilist.grid(row=7, column=3, padx=10, pady=20, sticky="ws")
+  
     columns = ("Model #", "Description", "Condition", "Quantity")
-    Ilist = ttk.Treeview(root, columns=columns, show="headings")
+    Ilist = ttk.Treeview(root, columns=columns, show="headings", height=15)
 
     # Set column headings
     for col in columns:
@@ -68,11 +95,11 @@ if __name__ == "__main__":
     Ilist.column(1, width=180)  # description columun wide
      
     # Add the Treeview to the grid
-    Ilist.grid(row=8, column=0, columnspan=4, padx=10, pady=10, sticky="nw")
+    Ilist.grid(row=8, column=3, columnspan=4, padx=10, pady=10, sticky="nw")
 
     # Add a vertical scrollbar
     scrollbar = tk.Scrollbar(root, command=Ilist.yview)
-    scrollbar.grid(row=8, column=4, sticky="nesw")
+    scrollbar.grid(row=8, column=7, sticky="nesw")
     Ilist.config(yscrollcommand=scrollbar.set)
 
     # Could Add a horizontal scrollbar
@@ -80,38 +107,17 @@ if __name__ == "__main__":
     # horizontal_scrollbar.grid(row=8, column=0, columnspan=4, sticky="ew")
     # Ilist.config(xscrollcommand=horizontal_scrollbar.set)
 
-   #########################################################################
-    # Create a ttk.Treeview for the Catalog Listbox
-    columns = ("Model #", "Description")
-    Clist = ttk.Treeview(root, columns=columns, show="headings")
-    # Set column headings
-    for col in columns:
-        Clist.heading(col, text=col, anchor="w", command=lambda c=col: sort_treeview(Clist, c, False))  # west-align header text
-    Clist.column(0, width=90)
-    Clist.column(1, width=200)  # description columun wide
- 
-    # Add the Treeview to the grid
-    Clist.grid(row=10, column=0, columnspan=2, padx=10, pady=10, sticky="nw")
-
-    # Add a vertical scrollbar
-    scrollbarC = tk.Scrollbar(root, command=Clist.yview)
-    scrollbarC.grid(row=10, column=2, sticky="nsw")
-    Clist.config(yscrollcommand=scrollbarC.set)
-
-    for key in descriptions:  ## convert dict entries to tuple to insert in treeview
-        Clist.insert('', 'end', values=(key, descriptions[key][0]))
-    #########################################################################
-    
-    tracker = Tracker(Ilist)
+    tracker = Tracker(Ilist, Clist)
 
     from gui import GUI
-    gui1 = GUI(root, tracker, Ilist)
+    gui1 = GUI(root, tracker, Ilist, Clist)
    ############### Functions to populate entries from treeview selections ######
     
     def on_select_I(event):
+        #for i in Clist.selection(): Clist.selection_remove(i)  # clear any selections in other list 
         # Get treeview(s) selected item's values
         selected = Ilist.item(Ilist.selection())
-        print("inventory selected:", selected)  # for debug
+    #    print("inventory selected:", selected)  # for debug
         
         gui1.fill_entries(selected['values'])
         gui1.image()  # update item image to match the model #
@@ -123,9 +129,10 @@ if __name__ == "__main__":
             gui1.entry[1].insert(0, descrip)  # update to catalog description
 
     def on_select_C(event):
+        #for i in Ilist.selection(): Ilist.selection_remove(i)  # clear any selections in other list
         # Get treeview(s) selected item's values
         selected = Clist.item(Clist.selection())
-        print("Catalog selected:", selected)  # for debug
+      #  print("Catalog selected:", selected)  # for debug
         gui1.fill_entries(selected['values'])
         gui1.image()  # update item image to match the model #
         
@@ -139,4 +146,5 @@ if __name__ == "__main__":
     Ilist.bind('<<TreeviewSelect>>', on_select_I)
     Clist.bind('<<TreeviewSelect>>', on_select_C)
 
+    gui1.time_update()
     root.mainloop()
