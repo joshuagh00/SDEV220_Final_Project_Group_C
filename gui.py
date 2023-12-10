@@ -25,20 +25,26 @@ class GUI:
 
         for row, label_text in enumerate(labels):
             label = tk.Label(master, text=label_text)
-            label.grid(row=row, column=0, padx=10, pady=5, sticky="e")
+            label.grid(row=row, column=0, padx=1, pady=5, sticky="e")
 
             self.entry.append (tk.Entry(master))
-            self.entry[row].grid(row=row, column=1, padx=10, pady=5, sticky="w")
+            self.entry[row].grid(row=row, column=1, padx=1, pady=5, sticky="w")
 
         # Buttons
-        button_Search = tk.Button(master, text="Search Model #", command=self.search)
-        button_Search.grid(row=len(labels), column=0) #, columnspan=1, pady=1)
+        button_Search = tk.Button(master, text="Search", command=self.search)
+        button_Search.grid(row=0, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
 
-        button_Add = tk.Button(master, text="Add item", command=self.receive_part)
-        button_Add.grid(row=len(labels), column=1) #, columnspan=1, pady=1)
+        button_Add = tk.Button(master, text="Receive item", command=self.receive_part)
+        button_Add.grid(row=1, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
 
         checkout_button = tk.Button(master, text="Checkout item", command=self.checkout_part)
-        checkout_button.grid(row=len(labels), column=2) #, columnspan=1, pady=1)
+        checkout_button.grid(row=2, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
+
+        label_Ilist = tk.Label(master, text="Inventory", font=("Arial", 16))
+        label_Ilist.grid(row=7, column=0, padx=10, pady=1, sticky="w")
+
+        label_Clist = tk.Label(master, text="Catalog", font=("Arial", 16))
+        label_Clist.grid(row=9, column=0, padx=10, pady=5, sticky="w")
 
         # Update inventory display initially
         self.tracker.update_inventory_display()
@@ -60,11 +66,11 @@ class GUI:
             default_image = [r'.\images\nothing.png', r'.\images\nothing.png']  # make a list to match descriptoin format 
             image_loc = descriptions.get(self.model,default_image)[1]  # default if key not found, avoid exception
             self.img = Image.open(image_loc) 
-            #self.img = self.img.resize((200, 300))           
+            #self.img = self.img.resize((200, 300))   #doesn't work right, maybe because its a .png         
             self.tk_img = ImageTk.PhotoImage(self.img)
             self.image_label = tk.Label(self.master, image=self.tk_img)
-            # self.image_label.place(x=700,y=3)
-            self.image_label.grid(row=9, column=2, columnspan=1, padx=0, pady=0, sticky="ne")
+            self.image_label.place(x=600,y=3)
+            #self.image_label.grid(row=0, column=3, rowspan=3, columnspan=1, padx=0, pady=0, sticky="ne")
  
     def fill_entries(self, values):
         for i in range(len(values)):  
@@ -90,20 +96,23 @@ class GUI:
    
 
     def receive_part(self):
-        self.part_info =[]
+        self.part_info = []
         for x in self.entry:
             self.part_info.append(x.get())
-        self.tracker.receive_part(self.part_info)
-        self.tracker.update_inventory_display()
-        self.image()
+        self.image()  # show picture for whatever is in Model # entry
+        if (not self.part_info[3].isnumeric()):  ## no quantity or nonumber 
+            tk.messagebox.showwarning("Receive item", "Invalid or missing quantity to receive")
+        else:    
+            self.tracker.receive_part(self.part_info)
+            self.tracker.update_inventory_display()    
 
     def checkout_part(self):
         self.part_info =[]
         for x in self.entry:
             self.part_info.append(x.get())
-        #part_number = simpledialog.askstring("Checkout Part", "Enter Part Number:")
-        #if part_number:
-        #    quantity = simpledialog.askinteger("Checkout Part", "Enter Quantity:")
-        #    if quantity:
-        self.tracker.checkout_part(self.part_info[0], self.part_info[3])
-        self.tracker.update_inventory_display()
+        self.image()  # show picture for whatever is in Model # entry
+        if (not self.part_info[3].isnumeric()):  ## no quantity or nonumber 
+            tk.messagebox.showwarning("Checkout item", "Invalid or missing quantity")
+        else:    
+            self.tracker.checkout_part(self.part_info[0], self.part_info[3])
+            self.tracker.update_inventory_display()

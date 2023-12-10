@@ -16,6 +16,6 @@ descriptions = \
     "M10": ["P4 prop", r".\images\P4prop.png"],
     "M11": ["P5 prop", r".\images\P5prop.png"],
     "M12": ["R1 rudder", r".\images\R1rudder.png"],
-    "M13": ["F2 flap", r".\images\F2flap.png"],
-    None: ["F2 flap", r".\images\nothing.png"]
+    "M13": ["F2 flap", r".\images\F2flap.png"]
+#    None: ["F2 flap", r".\images\nothing.png"]
 }
