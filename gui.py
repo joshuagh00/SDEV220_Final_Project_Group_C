@@ -79,7 +79,7 @@ class GUI:
             self.image_label.grid(row=7, column=3, rowspan = 4, padx=0, pady=0, sticky="ne") # may expand row size to image height
  
     def fill_entries(self, values):
-        for i in range(len(values)):  
+        for i in range(len(values)-1):  
             self.entry[i].delete(0, last = 30)
             self.entry[i].insert(0, values[i])  
 
@@ -99,20 +99,24 @@ class GUI:
             tk.messagebox.showwarning("Search for item", "Please supply model number")
         else:
             selections = []
-            for child in self.Ilist.get_children():  ## look first in the inventory
-                if query in self.Ilist.item(child)['values']:   # compare strings
-                   # print(self.Ilist.item(child)['values'])  # for debug
-                    selections.append(child)
-                    self.Ilist.selection_set(selections)
-                    self.image()
-                    return
-                else: 
-                    for child in self.Clist.get_children():
-                        if query in self.Clist.item(child)['values']:  
-                            selections.append(child)
-                            self.Clist.selection_set(selections)
-                            self.image()
-                            return
+            children = self.Ilist.get_children()
+            if len(children):  ## not an empty tuple
+                for child in children:  ## look first in the inventory
+                    if query in self.Ilist.item(child)['values']:   # compare strings
+                        # print(self.Ilist.item(child)['values'])  # for debug
+                        selections.append(child)
+                        self.Ilist.selection_set(selections)
+                        self.image()
+                        return
+                    else:   ## look in catalog if not in inventory
+                        children = self.Clist.get_children()
+                        if len(children):
+                            for child in self.Clist.get_children():
+                                if query in self.Clist.item(child)['values']:  
+                                    selections.append(child)
+                                    self.Clist.selection_set(selections)
+                                    self.image()
+                                    return
    
     def receive_part(self):
         self.get_it()

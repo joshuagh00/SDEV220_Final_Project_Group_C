@@ -1,13 +1,16 @@
 # tracker.py
-# 12/7/23 D. Kolb
+# 12/7/23 D. Kolb using sqlite database, etc.
 # 12/7/23 updated M. Atkins to add catalog database based on descriptions in settings.py.  Still need to use the database in the gui.
 # 12/8/23 updated M. Atkins to add Item class, and to remove unneeded catalog database based on descriptions in settings.py.  Still need to use the catalog in the gui.
 # 12/10/23 updated M. Atkins to use Item class , etc...
+# 12/11/23 updated M. Atkins to include time TOD of inventory list update
 
 import sqlite3
 import tkinter as tk
 from tkinter import messagebox
 import os
+from datetime import datetime  # for TOD of inventory list update
+
 
 PNmax = 9999
 SNmax = 9999
@@ -28,7 +31,6 @@ class Item:
 #    def __init__(self, descriptions = {}):
 #        self.data = descriptions   
   
-
 class Tracker:
     def __init__(self, Ilist=None, Clist=None):  ## Ilist defined in main.py
         self.conn = sqlite3.connect("parts.db")
@@ -46,6 +48,9 @@ class Tracker:
         self.Ilist = Ilist  # inventory list, Ilist defined in main.py
         self.Clist = Clist  # inventory list, Ilist defined in main.py
         
+        now = datetime.now()
+        self.time = now.strftime(" %H:%M:%S  %m/%d/%Y ") # Format the date and time
+ 
 
     def create_table(self):
         cursor = self.conn.cursor()
@@ -54,12 +59,13 @@ class Tracker:
                 model TEXT PRIMARY KEY,
                 description TEXT,
                 condition TEXT,
-                qty INTEGER
+                qty INTEGER,
+                time TEXT
             )
         ''')
         self.conn.commit()
 
-    """
+    """  ## Search database function, unneeded because we just search the catalog and inventory listboxes
     def search(self, it):
         cursor = self.conn.cursor()
         cursor.execute('SELECT * FROM parts WHERE model = ?', it.mod)
@@ -69,10 +75,10 @@ class Tracker:
     def receive_part(self, it, quantity):
         cursor = self.conn.cursor()
         cursor.execute('''
-            INSERT INTO parts (model, description, condition, qty)
-            VALUES (?, ?, ?, ?)
-               ON CONFLICT(model) DO UPDATE SET description = ?, condition = ?, qty = qty + ? ''', \
-                (it.mod, it.desc, it.cond, quantity, it.desc, it.cond, quantity))
+            INSERT INTO parts (model, description, condition, qty, time)
+            VALUES (?, ?, ?, ?, ?)
+               ON CONFLICT(model) DO UPDATE SET description = ?, condition = ?, qty = qty + ?, time=?''',
+                (it.mod, it.desc, it.cond, quantity, self.time, it.desc, it.cond, quantity, self.time))
         self.conn.commit()
 
 
@@ -83,8 +89,8 @@ class Tracker:
         existing_qty = cursor.fetchone()  ## returns a tuple
         if (existing_qty):
             if (existing_qty[0] >= quant):
-                cursor.execute('''UPDATE parts SET qty = qty - ?
-                    WHERE model = ?  ''', (quant, mod))
+                cursor.execute('''UPDATE parts SET qty = qty - ?, SET time = ?
+                    WHERE model = ?  ''', (quant, self.time, mod))
                 self.conn.commit()
         else:
             messagebox.showwarning("Checkout part", "Insufficient inventory (%s in stock)"% existing_qty)

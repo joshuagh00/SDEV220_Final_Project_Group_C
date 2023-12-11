@@ -41,7 +41,7 @@ listheight = 14
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.geometry("1000x700") # has no effect, due to the grid 
+    root.geometry("1100x700") # has no effect, due to the grid 
  #   root.grid(baseWidth=6, baseHeight=5, widthInc=1, heightInc=1)  #doesn't really work, too large
 
     #custom icon
@@ -88,14 +88,15 @@ if __name__ == "__main__":
     label_Ilist = tk.Label(text="Inventory", font=("Arial", 16))
     label_Ilist.grid(row=labelrow, column=3, padx=10, pady=1, sticky="ws")
   
-    columns = ("Model #", "Description", "Condition", "Quantity")
+    columns = ("Model #", "Description", "Condition", "Quantity", "Updated")
     Ilist = ttk.Treeview(root, columns=columns, show="headings", height=listheight)
 
     # Set column headings
     for col in columns:
         Ilist.heading(col, text=col, anchor="w", command=lambda c=col: sort_treeview(Ilist, c, False))  # west-align header text
-        Ilist.column(col, width=90)
-    Ilist.column(1, width=180)  # description columun wide
+        Ilist.column(col, width=80)
+    Ilist.column(1, width=150)  # description columun wide
+    Ilist.column(4, width=150)  # description columun wide
      
     # Add the Treeview to the grid
     Ilist.grid(row=treerow, column=3, columnspan=4, padx=10, pady=10, sticky="nw")
