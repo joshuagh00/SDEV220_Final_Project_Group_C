@@ -24,7 +24,7 @@ class Item:
         self.SN = SN  #serial # might be alphanumeric.  Unused right now  
 
     def str(self):   ## create a string with item attributes
-        return 'model #: %s    description: %s, image: %s,  S/N: %s' % (self.mod, self.desc, self.imagefile, self.SN)
+        return 'model #: %s,  description: %s, condition: %s, image: %s,  S/N: %s' % (self.mod, self.desc, self.cond, self.imagefile, self.SN)
     
 #class Catalog:  # superfluous
 #    def __init__(self, descriptions = {}):

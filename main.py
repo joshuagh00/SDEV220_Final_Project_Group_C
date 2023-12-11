@@ -1,25 +1,25 @@
-# main.py
+# main.py  for inventory system with GUI for  SDEV 220 class
 # 12/7/23 D. Kolb
 # 12/7/23 updated M. Atkins
 # 12/8/23 updated M. Atkins
 # 12/9/23 updated M. Atkins
 # 12/10/23 updated M. Atkins
-
+# 12/11/23 updated M. Atkins
 
 """
 Inputs: parts (items) (via barcode reader emulated, not really implemented), keeping track of parts received, 
 removed from, returned to storeroom for aircraft repairs. Parts may include new and used (removed from the aircraft)
 Classes:
 1. Item
-Attributes: Model, Description, condition (new, used, good, bad) image_file_path, unique ID (SN),
+Attributes: Model, Description, condition,image_file_path, unique ID (SN) (not implemented),
     History (list of dates, conditions, and locations) (would be nice, but not implemented in this version)
-    Methods: Add_history, Get_history 
+    Methods: str() 
 2. History (would be nice, but not implemented in this version)
     List of (date, location, status) tuples (new, used good, used bad. Location = in inventory or out in field.  Perhaps the value would be the technician’s ID or the airplane ID.)
 
 3. Inventory (Tracker)
-Attributes: list of Items, kept in SQL database tabke
-Methods: Add_item, Remove_item,
+Attributes: list of Items, kept in SQL database table
+Methods: see tracker.py file
 4. GUI (using Tkinter package)	
 Dialog box
  “Add item” button, with entry fields for new item’s attributes, 
@@ -33,15 +33,16 @@ Image of the item listed in the entry box(es) and/or selected in catalog or inve
 import os
 import tkinter as tk
 from tkinter import ttk  # Import the ttk module (treeview)
-# from gui import GUI
+
 from tracker import Tracker
+from gui import GUI
 from settings import *
 
 listheight = 14
 
 if __name__ == "__main__":
     root = tk.Tk()
-    root.geometry("1100x700") # has no effect, due to the grid 
+    root.geometry("1050x600") # has no effect, due to the grid 
  #   root.grid(baseWidth=6, baseHeight=5, widthInc=1, heightInc=1)  #doesn't really work, too large
 
     #custom icon
@@ -113,7 +114,7 @@ if __name__ == "__main__":
 
     tracker = Tracker(Ilist, Clist)
 
-    from gui import GUI
+    
     gui1 = GUI(root, tracker, Ilist, Clist)
    ############### Functions to populate entries from treeview selections ######
     

@@ -58,8 +58,8 @@ class GUI:
         master.grid_columnconfigure(1, weight=0)
 
         createToolTip(button_Search, "Search for Model in\n inventory, then in catalog")
-        createToolTip(button_Add, "Add to inventory the\n item selected or listed")
-        createToolTip(button_out, "Remove from inventory the\n item selected or listed")
+        createToolTip(button_Add, "Add to inventory the quantity\n of item selected or listed")
+        createToolTip(button_out, "Remove from inventory the quantity\n of item selected or listed")
             
         self.get_it()
 
