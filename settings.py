@@ -1,11 +1,11 @@
 # settings.py
-# 12/08/2023  MD Atkins
+# 12/11/2023  MD Atkins
 # item descriptions, for inventory & catalog
 
 inventory_db = 'inventory.db' # name of sql database file
 
 descriptions = \
-{ # dictionary of elements, each is [description, imagefile]
+{ # dictionary of lists, each is [description, imagefile]
     "M1": ["GT4 turbine blade", r".\images\turbine_blade.png"],
     "M2": ["FK2 fastener kit", r".\images\fasteners.png"],
     "M3": ["R3 rod", r".\images\R3rod.png"],

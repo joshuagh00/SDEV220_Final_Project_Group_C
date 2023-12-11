@@ -11,7 +11,7 @@ Inputs: parts (items) (via barcode reader emulated, not really implemented), kee
 removed from, returned to storeroom for aircraft repairs. Parts may include new and used (removed from the aircraft)
 Classes:
 1. Item
-Attributes: Model #, Description, condition (new, used, good, bad) image_file_path, unique ID (SN),
+Attributes: Model, Description, condition (new, used, good, bad) image_file_path, unique ID (SN),
     History (list of dates, conditions, and locations) (would be nice, but not implemented in this version)
     Methods: Add_history, Get_history 
 2. History (would be nice, but not implemented in this version)
@@ -64,7 +64,7 @@ if __name__ == "__main__":
     label_Clist = tk.Label(text="Catalog", font=("Arial", 16))
     label_Clist.grid(row=labelrow, column=0, padx=10, pady=1, sticky="ws")
  
-    columns = ("Model #", "Description")
+    columns = ("Model", "Description")
     Clist = ttk.Treeview(root, columns=columns, show="headings", height=listheight)
     # Set column headings
     for col in columns:
@@ -88,7 +88,7 @@ if __name__ == "__main__":
     label_Ilist = tk.Label(text="Inventory", font=("Arial", 16))
     label_Ilist.grid(row=labelrow, column=3, padx=10, pady=1, sticky="ws")
   
-    columns = ("Model #", "Description", "Condition", "Quantity", "Updated")
+    columns = ("Model", "Description", "Condition", "Quantity", "Updated")
     Ilist = ttk.Treeview(root, columns=columns, show="headings", height=listheight)
 
     # Set column headings
@@ -124,7 +124,7 @@ if __name__ == "__main__":
     #    print("inventory selected:", selected)  # for debug
         
         gui1.fill_entries(selected['values'])
-        gui1.image()  # update item image to match the model #
+        gui1.image()  # update item image to match the model
   
          # update description field to catalog description
         if gui1.entry[0].get() in descriptions:  # avoid KeyError on dictionary
@@ -138,7 +138,7 @@ if __name__ == "__main__":
         selected = Clist.item(Clist.selection())
       #  print("Catalog selected:", selected)  # for debug
         gui1.fill_entries(selected['values'])
-        gui1.image()  # update item image to match the model #
+        gui1.image()  # update item image to match the model
         
          # update description field to catalog description
         if gui1.entry[0].get() in descriptions:  # avoid KeyError on dictionary

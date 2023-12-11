@@ -30,7 +30,7 @@ class GUI:
         self.label_time = tk.Label(master, text=date_time, bg='yellow', bd=2, relief="raised")
         self.label_time.grid(row=offset, column=2, padx=1, pady=5, sticky="w")
 
-        labels = ["Model #", "Description", "Condition", "Quantity"]  # "Serial #",
+        labels = ["Model", "Description", "Condition", "Quantity"]  # "Serial #",
         self.entry = [] # length 0 list of entry boxes
       
 
@@ -57,7 +57,7 @@ class GUI:
         master.grid_columnconfigure(0, weight=0)
         master.grid_columnconfigure(1, weight=0)
 
-        createToolTip(button_Search, "Search inventory and catalog\n for model #")
+        createToolTip(button_Search, "Search for Model in\n inventory, then in catalog")
         createToolTip(button_Add, "Add to inventory the\n item selected or listed")
         createToolTip(button_out, "Remove from inventory the\n item selected or listed")
             
@@ -96,32 +96,32 @@ class GUI:
        
         query = self.entry[0].get()  ## just searching model #
         if query == '' or query.isspace():
-            tk.messagebox.showwarning("Search for item", "Please supply model number")
+            tk.messagebox.showwarning("Search for item", "Please supply Model")
         else:
             selections = []
             children = self.Ilist.get_children()
             if len(children):  ## not an empty tuple
                 for child in children:  ## look first in the inventory
-                    if query in self.Ilist.item(child)['values']:   # compare strings
-                        # print(self.Ilist.item(child)['values'])  # for debug
+                    # print(self.Ilist.item(child)['values'])  # for debug
+                    if query in self.Ilist.item(child)['values']:   # compare strings                       
                         selections.append(child)
                         self.Ilist.selection_set(selections)
                         self.image()
                         return
-                    else:   ## look in catalog if not in inventory
-                        children = self.Clist.get_children()
-                        if len(children):
-                            for child in self.Clist.get_children():
-                                if query in self.Clist.item(child)['values']:  
-                                    selections.append(child)
-                                    self.Clist.selection_set(selections)
-                                    self.image()
-                                    return
+                ## look in catalog if not in inventory
+            children = self.Clist.get_children()
+            if len(children):
+                for child in self.Clist.get_children():
+                    if query in self.Clist.item(child)['values']:  
+                        selections.append(child)
+                        self.Clist.selection_set(selections)
+                        self.image()
+                        return
    
     def receive_part(self):
         self.get_it()
         if (self.it.mod == '' or self.it.mod.isspace() or not self.quantity.isnumeric()):  ## no model number 
-            tk.messagebox.showwarning("Add item", "Please supply model and\n also quantity as a numeral")
+            tk.messagebox.showwarning("Add item", "Please supply Model and\n also quantity as a numeral")
         else:
             self.image()  # show picture for whatever is in Model # entry
             if (self.it.desc == '' or self.it.desc.isspace()):  ## add missing description
@@ -137,8 +137,8 @@ class GUI:
     def checkout_part(self):
         self.get_it()
         if (self.it.mod == '' or self.it.mod.isspace() or not self.quantity.isnumeric()):  ## no model number 
-            tk.messagebox.showwarning("Chekout item", "Please supply model and\n also quantity as a numeral")
+            tk.messagebox.showwarning("Chekout item", "Please supply Model and\n also quantity as a numeral")
         else:    
-            self.image()  # show picture for whatever is in Model # entry 
+            self.image()  # show picture for whatever is in Model entry 
             self.tracker.checkout_part(self.it.mod, self.quantity)
             self.tracker.update_inventory_display()
