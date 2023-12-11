@@ -4,6 +4,7 @@
 # 12/8/23 updated M. Atkins
 # 12/9/23 updated M. Atkins
 # 12/10/23 updated M. Atkins
+# 12/11/23 updated M. Atkins
 import tkinter as tk
 
 from PIL import ImageTk, Image  # to display current part image
@@ -11,46 +12,54 @@ from datetime import datetime  # for  TOD display label and History list (not ye
 
 from tracker import Tracker, Item
 from settings import *
+from tooltips import *
 
 class GUI:
     def __init__(self, master, tracker, Ilist, Clist):
         self.master = master
         self.master.title("Aircraft Parts Tracker")
-        self.master.geometry("1000x600")
+        
         self.Ilist = Ilist
         self.Clist = Clist
         self.tracker = tracker
 
+        offset = 7  # row offset for the widgets
+        # initialize timeclock.  Could use this in the inventory table, if timestamp implemented
         now = datetime.now()
-        date_time = now.strftime(" %H:%M:%S  %m/%d/%Y") # Format the date and time
-        self.label_time = tk.Label(master, text=date_time)
-        self.label_time.grid(row=0, column=2, padx=1, pady=5, sticky="w")
+        date_time = now.strftime(" %H:%M:%S  %m/%d/%Y ") # Format the date and time
+        self.label_time = tk.Label(master, text=date_time, bg='yellow', bd=2, relief="raised")
+        self.label_time.grid(row=offset, column=2, padx=1, pady=5, sticky="w")
 
         labels = ["Model #", "Description", "Condition", "Quantity"]  # "Serial #",
         self.entry = [] # length 0 list of entry boxes
+      
 
-        for row, label_text in enumerate(labels):
+        for r, label_text in enumerate(labels):
             label = tk.Label(master, text=label_text)
-            label.grid(row=row, column=0, padx=1, pady=5, sticky="e")
+            label.grid(row=offset+r, column=0, padx=1, pady=5, sticky="e")
 
             self.entry.append (tk.Entry(master))
-            self.entry[row].grid(row=row, column=1, padx=1, pady=5, sticky="w")
+            self.entry[r].grid(row=offset+r, column=1, padx=1, pady=5, sticky="w")
 
         # Buttons
         button_Search = tk.Button(master, text="Search", command=self.search)
-        button_Search.grid(row=1, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
+        button_Search.grid(row=offset+1, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
 
-        button_Add = tk.Button(master, text="Receive item", command=self.receive_part)
-        button_Add.grid(row=2, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
+        button_Add = tk.Button(master, text="Add item", command=self.receive_part)  ##  "Add item to\n inventory"
+        button_Add.grid(row=offset+2, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
 
-        checkout_button = tk.Button(master, text="Checkout item", command=self.checkout_part)
-        checkout_button.grid(row=3, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
+        button_out = tk.Button(master, text="Checkout item", command=self.checkout_part)
+        button_out.grid(row=offset+3, column=2, padx=1, pady=5) #, columnspan=1, pady=1)
 
         # Update inventory display initially
         self.tracker.update_inventory_display()
 
         master.grid_columnconfigure(0, weight=0)
         master.grid_columnconfigure(1, weight=0)
+
+        createToolTip(button_Search, "Search inventory and catalog\n for model #")
+        createToolTip(button_Add, "Add to inventory the\n item selected or listed")
+        createToolTip(button_out, "Remove from inventory the\n item selected or listed")
             
         self.get_it()
 
@@ -66,8 +75,8 @@ class GUI:
             #self.img = self.img.resize((200, 300))   #doesn't work right, maybe because its a .png         
             self.tk_img = ImageTk.PhotoImage(self.img)
             self.image_label = tk.Label(self.master, image=self.tk_img)
-            self.image_label.place(x=600,y=3)
-            #self.image_label.grid(row=0, column=3, rowspan=3, columnspan=1, padx=0, pady=0, sticky="ne")
+            #self.image_label.place(x=600,y=370)
+            self.image_label.grid(row=7, column=3, rowspan = 4, padx=0, pady=0, sticky="ne") # may expand row size to image height
  
     def fill_entries(self, values):
         for i in range(len(values)):  
@@ -76,7 +85,7 @@ class GUI:
 
     def time_update(self):
         now = datetime.now()
-        date_time = now.strftime(" %H:%M:%S     %m/%d/%Y") # Format the date and time
+        date_time = now.strftime(" %H:%M:%S     %m/%d/%Y ") # Format the date and time
         self.label_time.config(text=date_time)
         self.master.after(100, self.time_update)   # Schedule to run evry 100ms 
 
@@ -86,7 +95,9 @@ class GUI:
         for i in self.Clist.selection(): self.Clist.selection_remove(i)
        
         query = self.entry[0].get()  ## just searching model #
-        if query != '':
+        if query == '' or query.isspace():
+            tk.messagebox.showwarning("Search for item", "Please supply model number")
+        else:
             selections = []
             for child in self.Ilist.get_children():  ## look first in the inventory
                 if query in self.Ilist.item(child)['values']:   # compare strings
@@ -105,18 +116,25 @@ class GUI:
    
     def receive_part(self):
         self.get_it()
-        self.image()  # show picture for whatever is in Model # entry
-        if (not self.quantity.isnumeric()):  ## no quantity or nonumber 
-            tk.messagebox.showwarning("Receive item", "Invalid or missing quantity to receive")
-        else:    
+        if (self.it.mod == '' or self.it.mod.isspace() or not self.quantity.isnumeric()):  ## no model number 
+            tk.messagebox.showwarning("Add item", "Please supply both model\n number and quantity")
+        else:
+            self.image()  # show picture for whatever is in Model # entry
+            if (self.it.desc == '' or self.it.desc.isspace()):  ## add missing description
+                for child in self.Clist.get_children():
+                        if self.it.mod in self.Clist.item(child)['values']:  
+                            self.Clist.selection_set(child)
+                            self.it.desc =self.Clist.item(child)['values'][1]
+                            self.entry[1].insert(0,self.it.desc) 
+                            break
             self.tracker.receive_part(self.it, self.quantity)
             self.tracker.update_inventory_display()    
 
     def checkout_part(self):
         self.get_it()
-        self.image()  # show picture for whatever is in Model # entry
-        if (not self.quantity.isnumeric()):  ## no quantity or nonumber 
-            tk.messagebox.showwarning("Checkout item", "Invalid or missing quantity")
+        if (self.it.mod == '' or self.it.mod.isspace() or not self.quantity.isnumeric()):  ## no model number 
+            tk.messagebox.showwarning("Chekout item", "Please supply model number\n and quantity")
         else:    
+            self.image()  # show picture for whatever is in Model # entry 
             self.tracker.checkout_part(self.it.mod, self.quantity)
             self.tracker.update_inventory_display()

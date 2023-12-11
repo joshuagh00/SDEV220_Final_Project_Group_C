@@ -37,9 +37,11 @@ from tkinter import ttk  # Import the ttk module (treeview)
 from tracker import Tracker
 from settings import *
 
+listheight = 14
+
 if __name__ == "__main__":
     root = tk.Tk()
-    #root.geometry("2000x1000") # has no effect, due to the grid
+    root.geometry("1000x700") # has no effect, due to the grid 
  #   root.grid(baseWidth=6, baseHeight=5, widthInc=1, heightInc=1)  #doesn't really work, too large
 
     #custom icon
@@ -57,12 +59,13 @@ if __name__ == "__main__":
         tree.heading(col, command=lambda: sort_treeview(tree, col, not descending))
 
   #########################################################################
+    labelrow = 0; treerow = 1  # locations
     # Create Catalog Listbox, a ttk.Treeview 
     label_Clist = tk.Label(text="Catalog", font=("Arial", 16))
-    label_Clist.grid(row=7, column=0, padx=10, pady=20, sticky="ws")
+    label_Clist.grid(row=labelrow, column=0, padx=10, pady=1, sticky="ws")
  
     columns = ("Model #", "Description")
-    Clist = ttk.Treeview(root, columns=columns, show="headings", height=15)
+    Clist = ttk.Treeview(root, columns=columns, show="headings", height=listheight)
     # Set column headings
     for col in columns:
         Clist.heading(col, text=col, anchor="w", command=lambda c=col: sort_treeview(Clist, c, False))  # west-align header text
@@ -70,11 +73,11 @@ if __name__ == "__main__":
     Clist.column(1, width=200)  # description columun wide
  
     # Add the Treeview to the grid
-    Clist.grid(row=8, column=0, columnspan=2, rowspan=3, padx=10, pady=10, sticky="nw")
+    Clist.grid(row=treerow, column=0, columnspan=2, rowspan=3, padx=10, pady=10, sticky="nw")
 
     # Add a vertical scrollbar
     scrollbarC = tk.Scrollbar(root, command=Clist.yview)
-    scrollbarC.grid(row=8, column=2, sticky="nsw")
+    scrollbarC.grid(row=treerow, column=2, sticky="nsw")
     Clist.config(yscrollcommand=scrollbarC.set)
 
     for key in descriptions:  ## convert dict entries to tuple to insert in treeview
@@ -83,10 +86,10 @@ if __name__ == "__main__":
     ##########################################################################
     # Create inventory Listbox, a ttk.Treeview 
     label_Ilist = tk.Label(text="Inventory", font=("Arial", 16))
-    label_Ilist.grid(row=7, column=3, padx=10, pady=20, sticky="ws")
+    label_Ilist.grid(row=labelrow, column=3, padx=10, pady=1, sticky="ws")
   
     columns = ("Model #", "Description", "Condition", "Quantity")
-    Ilist = ttk.Treeview(root, columns=columns, show="headings", height=15)
+    Ilist = ttk.Treeview(root, columns=columns, show="headings", height=listheight)
 
     # Set column headings
     for col in columns:
@@ -95,11 +98,11 @@ if __name__ == "__main__":
     Ilist.column(1, width=180)  # description columun wide
      
     # Add the Treeview to the grid
-    Ilist.grid(row=8, column=3, columnspan=4, padx=10, pady=10, sticky="nw")
+    Ilist.grid(row=treerow, column=3, columnspan=4, padx=10, pady=10, sticky="nw")
 
     # Add a vertical scrollbar
     scrollbar = tk.Scrollbar(root, command=Ilist.yview)
-    scrollbar.grid(row=8, column=7, sticky="nesw")
+    scrollbar.grid(row=treerow, column=7, sticky="nesw")
     Ilist.config(yscrollcommand=scrollbar.set)
 
     # Could Add a horizontal scrollbar
