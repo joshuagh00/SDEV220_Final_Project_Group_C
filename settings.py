@@ -2,6 +2,8 @@
 # 12/08/2023  MD Atkins
 # item descriptions, for inventory & catalog
 
+inventory_db = 'inventory.db' # name of sql database file
+
 descriptions = \
 { # dictionary of elements, each is [description, imagefile]
     "M1": ["GT4 turbine blade", r".\images\turbine_blade.png"],

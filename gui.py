@@ -26,7 +26,7 @@ class GUI:
         offset = 7  # row offset for the widgets
         # initialize timeclock.  Could use this in the inventory table, if timestamp implemented
         now = datetime.now()
-        date_time = now.strftime(" %H:%M:%S  %m/%d/%Y ") # Format the date and time
+        date_time = now.strftime(" %H:%M:%S  %m/%d/%y ") # Format the date and time
         self.label_time = tk.Label(master, text=date_time, bg='yellow', bd=2, relief="raised")
         self.label_time.grid(row=offset, column=2, padx=1, pady=5, sticky="w")
 
@@ -85,7 +85,7 @@ class GUI:
 
     def time_update(self):
         now = datetime.now()
-        date_time = now.strftime(" %H:%M:%S     %m/%d/%Y ") # Format the date and time
+        date_time = now.strftime(" %H:%M:%S     %m/%d/%y ") # Format the date and time
         self.label_time.config(text=date_time)
         self.master.after(100, self.time_update)   # Schedule to run evry 100ms 
 
@@ -121,7 +121,7 @@ class GUI:
     def receive_part(self):
         self.get_it()
         if (self.it.mod == '' or self.it.mod.isspace() or not self.quantity.isnumeric()):  ## no model number 
-            tk.messagebox.showwarning("Add item", "Please supply both model\n number and quantity")
+            tk.messagebox.showwarning("Add item", "Please supply model and\n also quantity as a numeral")
         else:
             self.image()  # show picture for whatever is in Model # entry
             if (self.it.desc == '' or self.it.desc.isspace()):  ## add missing description
@@ -137,7 +137,7 @@ class GUI:
     def checkout_part(self):
         self.get_it()
         if (self.it.mod == '' or self.it.mod.isspace() or not self.quantity.isnumeric()):  ## no model number 
-            tk.messagebox.showwarning("Chekout item", "Please supply model number\n and quantity")
+            tk.messagebox.showwarning("Chekout item", "Please supply model and\n also quantity as a numeral")
         else:    
             self.image()  # show picture for whatever is in Model # entry 
             self.tracker.checkout_part(self.it.mod, self.quantity)

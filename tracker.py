@@ -10,8 +10,7 @@ import tkinter as tk
 from tkinter import messagebox
 import os
 from datetime import datetime  # for TOD of inventory list update
-
-
+from settings import *
 PNmax = 9999
 SNmax = 9999
 
@@ -33,7 +32,7 @@ class Item:
   
 class Tracker:
     def __init__(self, Ilist=None, Clist=None):  ## Ilist defined in main.py
-        self.conn = sqlite3.connect("parts.db")
+        self.conn = sqlite3.connect(inventory_db)
         
         self.create_table()
         """
@@ -48,14 +47,12 @@ class Tracker:
         self.Ilist = Ilist  # inventory list, Ilist defined in main.py
         self.Clist = Clist  # inventory list, Ilist defined in main.py
         
-        now = datetime.now()
-        self.time = now.strftime(" %H:%M:%S  %m/%d/%Y ") # Format the date and time
  
 
     def create_table(self):
         cursor = self.conn.cursor()
         cursor.execute('''
-            CREATE TABLE IF NOT EXISTS parts (
+            CREATE TABLE IF NOT EXISTS inventory (
                 model TEXT PRIMARY KEY,
                 description TEXT,
                 condition TEXT,
@@ -68,14 +65,16 @@ class Tracker:
     """  ## Search database function, unneeded because we just search the catalog and inventory listboxes
     def search(self, it):
         cursor = self.conn.cursor()
-        cursor.execute('SELECT * FROM parts WHERE model = ?', it.mod)
+        cursor.execute('SELECT * FROM inventory WHERE model = ?', it.mod)
         it = cursor.fetchall()
         fill_entries(it)
     """        
     def receive_part(self, it, quantity):
+        now = datetime.now()
+        self.time = now.strftime("%H:%M:%S  %m/%d/%y") # Format the date and time
         cursor = self.conn.cursor()
         cursor.execute('''
-            INSERT INTO parts (model, description, condition, qty, time)
+            INSERT INTO inventory (model, description, condition, qty, time)
             VALUES (?, ?, ?, ?, ?)
                ON CONFLICT(model) DO UPDATE SET description = ?, condition = ?, qty = qty + ?, time=?''',
                 (it.mod, it.desc, it.cond, quantity, self.time, it.desc, it.cond, quantity, self.time))
@@ -83,27 +82,32 @@ class Tracker:
 
 
     def checkout_part(self, mod, quantity):
+        now = datetime.now()
+        self.time = now.strftime("%H:%M:%S  %m/%d/%y") # Format the date and time
         quant = int(quantity)
         cursor = self.conn.cursor()
-        cursor.execute('SELECT qty FROM parts WHERE model = ?', ([mod]))
+        cursor.execute('SELECT qty FROM inventory WHERE model = ?', ([mod]))
         existing_qty = cursor.fetchone()  ## returns a tuple
-        if (existing_qty):
+        if (existing_qty != None):
             if (existing_qty[0] >= quant):
-                cursor.execute('''UPDATE parts SET qty = qty - ?, SET time = ?
+                cursor.execute('''UPDATE inventory SET qty = qty - ?, time = ?
                     WHERE model = ?  ''', (quant, self.time, mod))
                 self.conn.commit()
+            else:
+                messagebox.showwarning("Checkout part", "Insufficient inventory (%s in stock)"% existing_qty)
         else:
-            messagebox.showwarning("Checkout part", "Insufficient inventory (%s in stock)"% existing_qty)
+                messagebox.showwarning("Checkout part", "Insufficient inventory (%s in stock)"% existing_qty)
+
 
     def update_inventory_display(self):
         cursor = self.conn.cursor()
-        cursor.execute('SELECT * FROM parts')
-        parts = cursor.fetchall()
+        cursor.execute('SELECT * FROM inventory')
+        inventory = cursor.fetchall()
 
         # Clear the existing items in the Treeview
         for item in self.Ilist.get_children():
             self.Ilist.delete(item)
 
         # Insert new items into the Treeview
-        for part in parts:
+        for part in inventory:
             self.Ilist.insert("", "end", values=part)
