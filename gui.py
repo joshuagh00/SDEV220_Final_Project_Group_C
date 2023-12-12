@@ -100,7 +100,8 @@ class GUI:
        
         query = self.entry[0].get()  ## just searching model #
         if query == '' or query.isspace():
-            tk.messagebox.showwarning("Search for model", "Please supply Model")
+            tk.messagebox.showwarning("Search lists for Model", "Please supply Model")
+            return
         else:
             selections = []
             children = self.Ilist.get_children()
@@ -121,7 +122,8 @@ class GUI:
                         self.Clist.selection_set(selections)
                         self.image()
                         return
-        tk.messagebox.showinfo("Search for model", "Model not found but can be added\n to inventory via Add item button")  ## here if neither list has the model
+        notfound = "Model %s not found but can be added\n to inventory via Add item button" % query
+        tk.messagebox.showinfo("Search for model", notfound)  ## here if neither list has the model
  
     def receive_part(self):
         self.get_it()
