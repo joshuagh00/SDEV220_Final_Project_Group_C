@@ -5,6 +5,7 @@
 # 12/9/23 updated M. Atkins
 # 12/10/23 updated M. Atkins
 # 12/11/23 updated M. Atkins
+# 12/12/23 updated M. Atkins. Tweaks to tooltips and search button messageboxes
 import tkinter as tk
 
 from PIL import ImageTk, Image  # to display current part image
@@ -60,7 +61,10 @@ class GUI:
         createToolTip(button_Search, "Search for Model in\n inventory, then in catalog")
         createToolTip(button_Add, "Add to inventory the quantity\n of item selected or listed")
         createToolTip(button_out, "Remove from inventory the quantity\n of item selected or listed")
-            
+        createToolTip(self.entry[0], "Enter model or select an item in Catalog\n or Inventory to populate the blanks")
+        createToolTip(self.entry[1], "Enter description or select an item in Catalog\n or Inventory to populate the blanks")
+        createToolTip(self.entry[3], "A positive numeral for the quantity\n to add or checkout")
+           
         self.get_it()
 
     def get_it(self):  ## get item data from entry boxes
@@ -96,7 +100,7 @@ class GUI:
        
         query = self.entry[0].get()  ## just searching model #
         if query == '' or query.isspace():
-            tk.messagebox.showwarning("Search for item", "Please supply Model")
+            tk.messagebox.showwarning("Search for model", "Please supply Model")
         else:
             selections = []
             children = self.Ilist.get_children()
@@ -117,7 +121,8 @@ class GUI:
                         self.Clist.selection_set(selections)
                         self.image()
                         return
-   
+        tk.messagebox.showinfo("Search for model", "Model not found but can be added\n to inventory via Add item button")  ## here if neither list has the model
+ 
     def receive_part(self):
         self.get_it()
         if (self.it.mod == '' or self.it.mod.isspace() or not self.quantity.isnumeric()):  ## no model number 

@@ -1,5 +1,5 @@
 # tooltips.py
-# MD Atkins 12/11/2023
+# MD Atkins 12/12/2023
 # adapted from Edge copilot search
 # Usage:
 #  createToolTip(btn, "This is a button")
@@ -16,8 +16,8 @@ class ToolTip(object):
         if self.tip_window or not tip_text:
             return
         x, y, _, _ = self.widget.bbox("insert")
-        x += self.widget.winfo_rootx() + 25
-        y += self.widget.winfo_rooty() + 20
+        x += self.widget.winfo_rootx() + 60
+        y += self.widget.winfo_rooty() + 10
         self.tip_window = tw = tk.Toplevel(self.widget)
         tw.wm_overrideredirect(True)
         tw.wm_geometry(f"+{x}+{y}")
@@ -32,9 +32,10 @@ class ToolTip(object):
 
 def createToolTip(widget, text):
     toolTip = ToolTip(widget)
-    def enter(event):
+    def show(event):
         toolTip.show_tip(text)
-    def leave(event):
+    def hide(event):
         toolTip.hide_tip()
-    widget.bind('<Enter>', enter)
-    widget.bind('<Leave>', leave)
+    widget.bind('<Enter>', show)
+    widget.bind('<Leave>', hide)
+    widget.bind('<FocusIn>', hide)
